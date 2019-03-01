@@ -6,6 +6,7 @@ library(curl)
 options(scipen = 999)
 options(stringsAsFactors = FALSE)
 
+# Sys.setenv(PROPUBLICA_API_KEY = <keygoeshere>)
 
 ####get member information ####
 
@@ -75,6 +76,7 @@ z <- content3_df$votes$vote$positions %>%
   unnest()
 result <- z
 
+write_csv(result, "output/rollcallvote_98.csv")
 
 ### next step, turning the above code into functions....
 
