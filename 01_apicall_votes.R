@@ -6,8 +6,6 @@ library(curl)
 options(scipen = 999)
 options(stringsAsFactors = FALSE)
 
-# Sys.setenv(PROPUBLICA_API_KEY = <keygoeshere>)
-
 ####get member information ####
 
 get_memberinfo <- GET("https://api.propublica.org/congress/v1/114/house/members.json", 
@@ -37,7 +35,7 @@ str(content3_df$members[[1]], max.level = 1)
 #unnest
 z <- content3_df %>%
   unnest()
-result <- z
+result_memberlist <- z
 
 
 
@@ -74,9 +72,25 @@ str(content3_df$votes$vote$positions[[1]], max.level = 1)
 #unnest it and save result
 z <- content3_df$votes$vote$positions %>%
   unnest()
-result <- z
+result_rollcall <- z
 
-write_csv(result, "output/rollcallvote_98.csv")
+
+#create a new column for house_dist matching with census/elex data
+head(result_rollcall)
+
+distcorrect <- if_else(str_length(result_rollcall$district)==1,
+        paste0("0",result_rollcall$district),
+        result_rollcall$district)
+
+result_rollcall$distcorrect <- distcorrect
+result_rollcall$house_dist <- paste0(result_rollcall$state, "-", result_rollcall$distcorrect)
+
+result_rollcall <- result_rollcall %>% 
+  select(-distcorrect, -dw_nominate)
+
+head(result_rollcall)
+
+write_csv(result_rollcall, "output/rollcallvote_98.csv")
 
 ### next step, turning the above code into functions....
 
