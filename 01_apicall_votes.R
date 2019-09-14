@@ -8,7 +8,7 @@ options(stringsAsFactors = FALSE)
 
 ####get member information ####
 
-get_memberinfo <- GET("https://api.propublica.org/congress/v1/114/house/members.json", 
+get_memberinfo <- GET("https://api.propublica.org/congress/v1/116/house/members.json", 
                     add_headers(`X-API-Key` = Sys.getenv("PROPUBLICA_API_KEY"))) #key stored as environ variable
 
 get_memberinfo$status_code
@@ -37,6 +37,14 @@ z <- content3_df %>%
   unnest()
 result_memberlist <- z
 
+
+#see if any ids repeated
+result_memberlist %>% 
+  count(id) %>% 
+  filter(n > 1)
+
+#save result
+saveRDS(result_memberlist, "processed_data/result_memberlist.rds")
 
 
 
