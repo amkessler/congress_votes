@@ -6,6 +6,14 @@ library(curl)
 options(scipen = 999)
 options(stringsAsFactors = FALSE)
 
+
+### to avoid making new api calls, we can used the previous saved versions here
+result_memberlist <- readRDS("processed_data/result_memberlist_116th.rds")
+result_cosponsors <- readRDS("processed_data/result_cosponsors_hr1296.rds")
+
+
+### otherwise, we'll pull down info from the API here in these steps:
+
 ####get member information ####
 
 get_memberinfo <- GET("https://api.propublica.org/congress/v1/116/house/members.json", 
@@ -47,8 +55,7 @@ result_memberlist %>%
 saveRDS(result_memberlist, "processed_data/result_memberlist_116th.rds")
 
 
-### ***if want to skip above, just load saved version here ** ####
-result_memberlist <- readRDS("processed_data/result_memberlist_116th.rds")
+
 
 
 
@@ -91,20 +98,21 @@ result_cosponsors <- z
 saveRDS(result_cosponsors, "processed_data/result_cosponsors_hr1296.rds")
 
 
-## ** to avoid re-downloading we can also load from saved version ** ###
-result_cosponsors <- readRDS("processed_data/result_cosponsors_hr1296.rds")
-
 
 
 #### look for members that are NOT co-sponsors ##### ---------------
 
 glimpse(result_memberlist)
 
+result_memberlist %>% 
+  count(state) %>% 
+  View()
+
 #pull just house democrats
 house_dems <- result_memberlist %>% 
   select(id, first_name, middle_name, last_name, party, state, district, geoid, fec_candidate_id) %>% 
   filter(party == "D",
-         !state %in% c("VI", "GU", "MP", "DC", "PR")) 
+         !state %in% c("VI", "GU", "MP", "DC", "PR", "AS")) 
 
 #see if any repeated IDs
 house_dems %>% 
@@ -132,33 +140,59 @@ nonsponsors <- anti_join(house_dems, dem_bill_cosponsors)
 
 #remove id of sponsor him/herself, who shouldn't be among the nonsponsor table
 sponsor_of_bill <- unique(dem_bill_cosponsors$sponsor_id)
-
 nonsponsors <- nonsponsors %>% 
   filter(id != sponsor_of_bill)
 
 
 
+#### bring in the CD profile data #### --------------------------
+
+workingtable <- readRDS("processed_data/workingtable.rds")
+
+nonsponsors <- nonsponsors %>% 
+  rename(GEOID = geoid)
+
+#join
+working_joined <- inner_join(nonsponsors, workingtable, by = "GEOID")
+
+
+#analysis
+glimpse(working_joined)
+
+working_joined %>% 
+  count(p16winningparty)
+
+working_joined %>% 
+  count(keyrace_rating)
+
+working_joined %>% 
+  count(flips)
+
+working_joined %>% 
+  count(pct.ed.college.all.abovebelow.natl)
+
+working_joined %>% 
+  count(medincome.abovebelow.natl)
+
+working_joined %>% 
+  count(pct.race.nonwhite.abovebelow.natl)
+
+
+# how close were the 18 results?
+working_joined %>% 
+  select(
+    live_D_pct,
+    live_R_pct,
+    live_winning,
+    live_margin
+  ) %>% 
+  arrange(live_margin)
 
 
 
 
-#create a new column for house_dist matching with census/elex data ####
-head(result_rollcall)
 
-distcorrect <- if_else(str_length(result_rollcall$district)==1,
-        paste0("0",result_rollcall$district),
-        result_rollcall$district)
 
-result_rollcall$distcorrect <- distcorrect
-result_rollcall$house_dist <- paste0(result_rollcall$state, "-", result_rollcall$distcorrect)
 
-result_rollcall <- result_rollcall %>% 
-  select(-distcorrect, -dw_nominate)
-
-head(result_rollcall)
-
-write_csv(result_rollcall, "output/rollcallvote_98.csv")
-
-### next step, turning the above code into functions....
 
 
