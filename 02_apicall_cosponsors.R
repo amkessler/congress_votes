@@ -93,12 +93,23 @@ glimpse(result_memberlist)
 house_dems <- result_memberlist %>% 
   select(id, first_name, middle_name, last_name, party, state, district, geoid, fec_candidate_id) %>% 
   filter(party == "D",
-         !state %in% c("VI", "GU", "MP")) 
+         !state %in% c("VI", "GU", "MP", "DC", "PR")) 
 
-bill_cosponsors <- result_cosponsors %>% 
+#only democrats and rename id to ease join
+dem_bill_cosponsors <- result_cosponsors %>% 
+  filter(cosponsor_party == "D") %>% 
   rename(id = cosponsor_id)
 
 nonsponsors <- anti_join(house_dems, bill_cosponsors)
+
+#remove sponsor him/herself
+sponsor_of_bill <- unique(dem_bill_cosponsors$sponsor_id)
+
+nonsponsors <- nonsponsors %>% 
+  filter(id != sponsor_of_bill)
+
+
+
 
 
 
