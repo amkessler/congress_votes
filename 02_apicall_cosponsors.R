@@ -47,8 +47,12 @@ result_memberlist %>%
 saveRDS(result_memberlist, "processed_data/result_memberlist_116th.rds")
 
 
+### ***if want to skip above, just load saved version here ** ####
+result_memberlist <- readRDS("processed_data/result_memberlist_116th.rds")
 
-#### specific bill - list of cosponsors ####
+
+
+#### SPECIFIC BILL - LIST OF COSPONSORS #### -----------------------
 
 # https://projects.propublica.org/api-docs/congress-api/bills/#get-cosponsors-for-a-specific-bill
 
@@ -83,9 +87,16 @@ z <- content3_df %>%
 
 result_cosponsors <- z
 
+#save results
+saveRDS(result_cosponsors, "processed_data/result_cosponsors_hr1296.rds")
 
 
-#### look for members that are NOT co-sponsors #####
+## ** to avoid re-downloading we can also load from saved version ** ###
+result_cosponsors <- readRDS("processed_data/result_cosponsors_hr1296.rds")
+
+
+
+#### look for members that are NOT co-sponsors ##### ---------------
 
 glimpse(result_memberlist)
 
@@ -95,14 +106,31 @@ house_dems <- result_memberlist %>%
   filter(party == "D",
          !state %in% c("VI", "GU", "MP", "DC", "PR")) 
 
+#see if any repeated IDs
+house_dems %>% 
+  count(id) %>% 
+  filter(n > 1)
+
+#see if any repeated districts
+house_dems %>% 
+  count(state, district) %>% 
+  filter(n > 1)
+
+
 #only democrats and rename id to ease join
 dem_bill_cosponsors <- result_cosponsors %>% 
   filter(cosponsor_party == "D") %>% 
   rename(id = cosponsor_id)
 
-nonsponsors <- anti_join(house_dems, bill_cosponsors)
+#see if any repeated IDs
+dem_bill_cosponsors %>% 
+  count(id) %>% 
+  filter(n > 1)
 
-#remove sponsor him/herself
+### do the anti-join
+nonsponsors <- anti_join(house_dems, dem_bill_cosponsors)
+
+#remove id of sponsor him/herself, who shouldn't be among the nonsponsor table
 sponsor_of_bill <- unique(dem_bill_cosponsors$sponsor_id)
 
 nonsponsors <- nonsponsors %>% 
