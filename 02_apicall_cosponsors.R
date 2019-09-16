@@ -12,15 +12,16 @@ source("00_functions.R")
 
 ### to avoid making new api calls, we can used the previous saved versions here ####
 ### and then skip to the non-sponsor analysis section
-result_memberlist <- readRDS("processed_data/result_memberlist_116th.rds")
-result_cosponsors <- readRDS("processed_data/result_cosponsors_hr1296.rds")
+
+# result_memberlist <- readRDS("processed_data/result_memberlist_116th.rds")
+# result_cosponsors <- readRDS("processed_data/result_cosponsors_hr1296.rds")
 
 ####################################################################################
 
 
-
 ### otherwise, we'll pull down info from the API here:
-# the functions below found in file 00
+
+# (the functions below found in file 00)
 
 #### GET MEMBER INFORMATION ####
 result_memberlist <- ppapi_download_memberinfo("116", "house")
@@ -49,7 +50,6 @@ saveRDS(result_cosponsors, "processed_data/result_cosponsors_hr1296.rds")
 
 
 #### LOOK FOR MEMBERS WHO ARE *NOT* COSPONSORS ##### 
-
 glimpse(result_memberlist)
 
 #pull just house democrats (omit no-voting members)
@@ -80,20 +80,19 @@ dem_bill_cosponsors %>%
   filter(n > 1)
 
 ### do the anti-join
-nonsponsors <- anti_join(house_dems, dem_bill_cosponsors)
+dem_bill_nonsponsors <- anti_join(house_dems, dem_bill_cosponsors)
 
 #remove id of sponsor him/herself, who shouldn't be among the nonsponsor table
 #remember when totaling up to 235 for checking, you'll need to add 1 to account for this
 sponsor_of_bill <- unique(dem_bill_cosponsors$sponsor_id)
 
-nonsponsors <- nonsponsors %>% 
+dem_bill_nonsponsors <- dem_bill_nonsponsors %>% 
   filter(id != sponsor_of_bill)
 
 
 
 
 #### BRING IN THE CONGRESSIONAL DISTRICT PROFILE DATA (FROM RB PROJECT) #### -----------
-
 workingtable <- readRDS("processed_data/workingtable.rds")
 
 nonsponsors <- nonsponsors %>% 
@@ -141,8 +140,7 @@ working_joined %>%
     live_winning,
     live_margin
   ) %>% 
-  arrange(live_margin) %>% 
-  View()
+  arrange(live_margin)
 
 
 
