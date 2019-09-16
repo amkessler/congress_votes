@@ -143,7 +143,8 @@ nonsponsors <- nonsponsors %>%
 
 
 
-#### bring in the CD profile data #### --------------------------
+
+#### BRING IN THE CONGRESSIONAL DISTRICT PROFILE DATA (FROM RB PROJECT) #### -----------
 
 workingtable <- readRDS("processed_data/workingtable.rds")
 
@@ -152,6 +153,9 @@ nonsponsors <- nonsponsors %>%
 
 #join
 working_joined <- inner_join(nonsponsors, workingtable, by = "GEOID")
+
+#save results
+writexl::write_xlsx(working_joined, "output/working_joined_hr1296.xlsx")
 
 
 #analysis
