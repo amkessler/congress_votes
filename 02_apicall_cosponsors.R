@@ -104,10 +104,6 @@ saveRDS(result_cosponsors, "processed_data/result_cosponsors_hr1296.rds")
 
 glimpse(result_memberlist)
 
-result_memberlist %>% 
-  count(state) %>% 
-  View()
-
 #pull just house democrats
 house_dems <- result_memberlist %>% 
   select(id, first_name, middle_name, last_name, party, state, district, geoid, fec_candidate_id) %>% 
@@ -127,7 +123,8 @@ house_dems %>%
 
 #only democrats and rename id to ease join
 dem_bill_cosponsors <- result_cosponsors %>% 
-  filter(cosponsor_party == "D") %>% 
+  filter(cosponsor_party == "D",
+         !cosponsor_state %in% c("VI", "GU", "MP", "DC", "PR", "AS")) %>% 
   rename(id = cosponsor_id)
 
 #see if any repeated IDs
@@ -139,6 +136,7 @@ dem_bill_cosponsors %>%
 nonsponsors <- anti_join(house_dems, dem_bill_cosponsors)
 
 #remove id of sponsor him/herself, who shouldn't be among the nonsponsor table
+#remember when totaling up to 235 for checking, you'll need to add 1 to account for this
 sponsor_of_bill <- unique(dem_bill_cosponsors$sponsor_id)
 nonsponsors <- nonsponsors %>% 
   filter(id != sponsor_of_bill)
@@ -186,12 +184,8 @@ working_joined %>%
     live_winning,
     live_margin
   ) %>% 
-  arrange(live_margin)
-
-
-
-
-
+  arrange(live_margin) %>% 
+  View()
 
 
 
