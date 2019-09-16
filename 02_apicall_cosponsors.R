@@ -156,6 +156,11 @@ working_joined %>%
   count(pct.race.nonwhite.abovebelow.natl)
 
 
+working_joined %>% 
+  count(p16winningparty, pct.ed.college.all.abovebelow.natl)
+
+
+
 # how close were the 18 results?
 working_joined %>% 
   select(
