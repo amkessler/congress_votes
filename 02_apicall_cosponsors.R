@@ -9,17 +9,20 @@ options(stringsAsFactors = FALSE)
 # source custom functions used below for pulling from PP's API
 source("00_functions.R")
 
-### to avoid making new api calls, we can used the previous saved versions here
+
+### to avoid making new api calls, we can used the previous saved versions here ####
 ### and then skip to the non-sponsor analysis section
 result_memberlist <- readRDS("processed_data/result_memberlist_116th.rds")
 result_cosponsors <- readRDS("processed_data/result_cosponsors_hr1296.rds")
 
+####################################################################################
+
+
 
 ### otherwise, we'll pull down info from the API here:
+# the functions below found in file 00
 
-####get member information ####
-# this function is found in file 00
-
+#### GET MEMBER INFORMATION ####
 result_memberlist <- ppapi_download_memberinfo("116", "house")
 
 #see if any ids repeated
@@ -28,59 +31,28 @@ result_memberlist %>%
   filter(n > 1)
 
 #save result
-saveRDS(result_memberlist, "processed_data/result_memberlist_116th.rds")
+saveRDS(result_memberlist, "processed_data/result_memberlist.rds")
 
 
 
+#### SPECIFIC BILL - LIST OF COSPONSORS #### 
+result_cosponsors <- ppapi_download_cosponsors("116", "hr1296")
 
-
-
-#### SPECIFIC BILL - LIST OF COSPONSORS #### -----------------------
-
-# https://projects.propublica.org/api-docs/congress-api/bills/#get-cosponsors-for-a-specific-bill
-
-# here we'll pull HR1296
-get_cosponsors <- GET("https://api.propublica.org/congress/v1/116/bills/hr1296/cosponsors.json", 
-              add_headers(`X-API-Key` = Sys.getenv("PROPUBLICA_API_KEY")))
-
-get_cosponsors$status_code
-get_cosponsors$content
-#convert from raw to characters
-this.raw.content <- rawToChar(get_cosponsors$content)
-#count how many characters
-nchar(this.raw.content)
-#look at first 100
-substr(this.raw.content, 1, 100)
-#parse this json
-this.content <- fromJSON(this.raw.content)
-#returns a list?
-class(this.content)
-#how long is the list
-length(this.content)
-this.content[[1]] #the first element - should be states if working
-this.content[[3]] #the data itself, or so it appears to be
-
-content3_df <- as_tibble(this.content[[3]])
-#inspect the list column nested several levels down
-#in votes$vote$positions - where the full vote list located - for one record
-str(content3_df$cosponsors[[1]], max.level = 1) 
-#unnest it and save result
-z <- content3_df %>%
-  unnest(cosponsors)
-
-result_cosponsors <- z
+#see if any ids repeated
+result_cosponsors %>% 
+  count(cosponsor_id) %>% 
+  filter(n > 1)
 
 #save results
 saveRDS(result_cosponsors, "processed_data/result_cosponsors_hr1296.rds")
 
 
 
-
-#### look for members that are NOT co-sponsors ##### ---------------
+#### LOOK FOR MEMBERS WHO ARE *NOT* COSPONSORS ##### 
 
 glimpse(result_memberlist)
 
-#pull just house democrats
+#pull just house democrats (omit no-voting members)
 house_dems <- result_memberlist %>% 
   select(id, first_name, middle_name, last_name, party, state, district, geoid, fec_candidate_id) %>% 
   filter(party == "D",
@@ -96,8 +68,7 @@ house_dems %>%
   count(state, district) %>% 
   filter(n > 1)
 
-
-#only democrats and rename id to ease join
+# only democrat cosponsors and rename id to ease join
 dem_bill_cosponsors <- result_cosponsors %>% 
   filter(cosponsor_party == "D",
          !cosponsor_state %in% c("VI", "GU", "MP", "DC", "PR", "AS")) %>% 
@@ -114,6 +85,7 @@ nonsponsors <- anti_join(house_dems, dem_bill_cosponsors)
 #remove id of sponsor him/herself, who shouldn't be among the nonsponsor table
 #remember when totaling up to 235 for checking, you'll need to add 1 to account for this
 sponsor_of_bill <- unique(dem_bill_cosponsors$sponsor_id)
+
 nonsponsors <- nonsponsors %>% 
   filter(id != sponsor_of_bill)
 
