@@ -1,3 +1,7 @@
+# this file contains saved code of original successful attempt at pulling
+# data from Propublica API
+# it is saved here for archive/referencing purposes
+
 library(tidyverse)
 library(janitor)
 library(httr)
