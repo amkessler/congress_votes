@@ -154,6 +154,7 @@ working_joined <- inner_join(house_dems_wspons, workingtable, by = "GEOID")
 
 #save results
 writexl::write_xlsx(working_joined, "output/working_joined_hr1296.xlsx")
+saveRDS(working_joined, "output/working_joined_hr1296.rds")
 
 
 
