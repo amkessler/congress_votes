@@ -89,6 +89,12 @@ sponsor_of_bill <- unique(dem_bill_cosponsors$sponsor_id)
 dem_bill_nonsponsors <- dem_bill_nonsponsors %>% 
   filter(id != sponsor_of_bill)
 
+#check to see who was pulled out of consponsors table because
+#they were either from a non-voting district or a Republican
+result_cosponsors %>% 
+  filter(cosponsor_party == "R" |
+         cosponsor_state %in% c("VI", "GU", "MP", "DC", "PR", "AS")) %>% 
+  select(bill_slug, cosponsor_id, name, cosponsor_state, cosponsor_party) 
 
 
 
