@@ -144,6 +144,11 @@ house_dems_wspons <- house_dems_wspons %>%
     stance = str_squish(stance)
   )
   
+#finally, we'll remove Pelosi since the speaker doesn't really cosponsor bills
+#that will give us 234 total dems
+house_dems_wspons <- house_dems_wspons %>% 
+  filter(id != "P000197")
+
 
 
 #### BRING IN THE CONGRESSIONAL DISTRICT PROFILE DATA (FROM RB PROJECT) #### -----------
@@ -167,11 +172,13 @@ saveRDS(working_joined, "output/working_joined_hr1296.rds")
 #for crosstabs using summarytools
 # print(ctable(tobacco$smoker, tobacco$diseased, prop = "r"), method = "render")
 
+# trump districts vs hillary
 ctable(working_joined$p16winningparty, working_joined$stance, prop = "r")
 
-# ctable(working_joined$stance, working_joined$p16winningparty, prop = "r")
-
+#education
 ctable(working_joined$pct.ed.college.all.abovebelow.natl, working_joined$stance, prop = "r")
+ctable(working_joined$pct.ed.college.all.abovebelow.natl, working_joined$stance, prop = "c")
+
 
 
 
