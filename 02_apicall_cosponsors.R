@@ -3,6 +3,7 @@ library(janitor)
 library(httr)
 library(jsonlite)
 library(curl)
+library(summarytools)
 options(scipen = 999)
 options(stringsAsFactors = FALSE)
 
@@ -128,7 +129,18 @@ znospons <- house_dems %>%
 
 house_dems_wspons <- bind_rows(zcospons, znospons)
 
-
+#now we'll add a field that makes a binary choice between sponsor/cosponsor Vs not
+house_dems_wspons <- house_dems_wspons %>% 
+  mutate(
+    stance = case_when(
+      position == "sponsor" ~ "sponsoring", 
+      position == "cosponsor" ~ "sponsoring", 
+      position == "not sponsor" ~ "not sponsoring", 
+      TRUE ~ "other"
+    )
+  ) %>% 
+  select(stance, everything())
+  
 
 
 #### BRING IN THE CONGRESSIONAL DISTRICT PROFILE DATA (FROM RB PROJECT) #### -----------
@@ -144,8 +156,23 @@ working_joined <- inner_join(house_dems_wspons, workingtable, by = "GEOID")
 writexl::write_xlsx(working_joined, "output/working_joined_hr1296.xlsx")
 
 
-#analysis
+
+
+## ANALYSIS ####
+
+#for crosstabs using summarytools
+# print(ctable(tobacco$smoker, tobacco$diseased, prop = "r"), method = "render")
+
+ctable(working_joined$position, working_joined$p16winningparty, prop = "n")
+
+ctable(working_joined$position, working_joined$pct.ed.college.all.abovebelow.natl, prop = "n")
+
+summarytools::tb()
+
 glimpse(working_joined)
+
+working_joined %>% 
+  count(position)
 
 working_joined %>% 
   count(p16winningparty)
