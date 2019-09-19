@@ -97,15 +97,48 @@ result_cosponsors %>%
   select(bill_slug, cosponsor_id, name, cosponsor_state, cosponsor_party) 
 
 
+## Now let's build a single table that includes cosponsors, sponsor and nonsponsors ####
+
+#start with data of voting democratic caucus
+house_dems
+
+#add a new column that we'll use to identify their position
+house_dems <- house_dems %>% 
+  mutate(
+    position = "None listed"
+  ) %>% 
+  select(position, everything())
+
+#now we'll split up and remerge using vector of IDs
+cosponsor_ids_vector <- dem_bill_cosponsors %>% 
+  pull(id)
+
+zcospons <- house_dems %>% 
+  filter(id %in% cosponsor_ids_vector) %>% 
+  mutate(position = "cosponsor")
+
+znospons <- house_dems %>% 
+  filter(!id %in% cosponsor_ids_vector) %>% 
+  mutate(
+    position = case_when(
+      id == sponsor_of_bill ~ "sponsor", #using the saved sponsor id from above
+      TRUE ~ "not sponsor"
+    )
+  )
+
+house_dems_wspons <- bind_rows(zcospons, znospons)
+
+
+
 
 #### BRING IN THE CONGRESSIONAL DISTRICT PROFILE DATA (FROM RB PROJECT) #### -----------
 workingtable <- readRDS("processed_data/workingtable.rds")
 
-nonsponsors <- nonsponsors %>% 
+house_dems_wspons <- house_dems_wspons %>% 
   rename(GEOID = geoid)
 
 #join
-working_joined <- inner_join(nonsponsors, workingtable, by = "GEOID")
+working_joined <- inner_join(house_dems_wspons, workingtable, by = "GEOID")
 
 #save results
 writexl::write_xlsx(working_joined, "output/working_joined_hr1296.xlsx")
