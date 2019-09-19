@@ -135,11 +135,14 @@ house_dems_wspons <- house_dems_wspons %>%
     stance = case_when(
       position == "sponsor" ~ "sponsoring", 
       position == "cosponsor" ~ "sponsoring", 
-      position == "not sponsor" ~ "not sponsoring", 
+      position == "not sponsor" ~ "not_sponsoring", 
       TRUE ~ "other"
     )
   ) %>% 
-  select(stance, everything())
+  select(stance, everything()) %>% 
+  mutate(
+    stance = str_squish(stance)
+  )
   
 
 
@@ -164,7 +167,14 @@ saveRDS(working_joined, "output/working_joined_hr1296.rds")
 #for crosstabs using summarytools
 # print(ctable(tobacco$smoker, tobacco$diseased, prop = "r"), method = "render")
 
-ctable(working_joined$position, working_joined$p16winningparty, prop = "n")
+ctable(working_joined$p16winningparty, working_joined$stance, prop = "r")
+
+# ctable(working_joined$stance, working_joined$p16winningparty, prop = "r")
+
+ctable(working_joined$pct.ed.college.all.abovebelow.natl, working_joined$stance, prop = "r")
+
+
+
 
 ctable(working_joined$position, working_joined$pct.ed.college.all.abovebelow.natl, prop = "n")
 

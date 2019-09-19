@@ -16,16 +16,20 @@ options(scipen = 999)
 working_joined <- readRDS("output/working_joined_hr1296.rds")
 
 
-
 ```
 
 Analysis of bill sponsorship vs. not
 
 
 
+```{r, echo=FALSE}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+print(ctable(working_joined$p16winningparty,
+             working_joined$stance, 
+             prop = "r", headings = FALSE), method = "render")
+
+
+
 ```
 
 N
