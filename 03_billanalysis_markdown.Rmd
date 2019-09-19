@@ -1,0 +1,31 @@
+---
+title: "bill analysis"
+author: "AK"
+date: "9/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(summarytools)
+options(scipen = 999)
+
+working_joined <- readRDS("output/working_joined_hr1296.rds")
+
+
+
+```
+
+Analysis of bill sponsorship vs. not
+
+
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+N
