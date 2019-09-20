@@ -179,6 +179,10 @@ ctable(working_joined$p16winningparty, working_joined$stance, prop = "r")
 ctable(working_joined$pct.ed.college.all.abovebelow.natl, working_joined$stance, prop = "r")
 ctable(working_joined$pct.ed.college.all.abovebelow.natl, working_joined$stance, prop = "c")
 
+#GDP
+ctable(working_joined$gdp_abovebelow_natlavg, working_joined$stance, prop = "r")
+ctable(working_joined$gdp_abovebelow_natlavg, working_joined$stance, prop = "c")
+ctable(working_joined$gdp_abovebelow_natlavg, working_joined$stance, prop = "n")
 
 
 
