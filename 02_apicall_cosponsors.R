@@ -193,7 +193,7 @@ glimpse(working_joined)
 
 # groupings for export to spreadsheet for gfx ####
 
-trump_hillary <- working_joined %>% 
+prezresults2016 <- working_joined %>% 
   count(p16winningparty, stance)
 
 gdp <- working_joined %>% 
@@ -207,6 +207,38 @@ nonwhite_pop <- working_joined %>%
 
 rural_area <- working_joined %>% 
   count(pct.rural.above20, stance)
+
+
+gdp_andprezresults <- working_joined %>% 
+  count(p16winningparty, gdp_abovebelow_natlavg, stance)
+
+college_degree_andprezresults <- working_joined %>% 
+  count(p16winningparty, pct.ed.college.all.abovebelow.natl, stance)
+
+nonwhite_pop_andprezresults <- working_joined %>% 
+  count(p16winningparty, pct.race.nonwhite.abovebelow.natl, stance)
+
+rural_area_andprezresults <- working_joined %>% 
+  count(p16winningparty, pct.rural.above20, stance)
+
+
+
+#now make a list to feed to writexl
+list_of_breakdowns <- list(prezresults2016 = prezresults2016,
+                           gdp_vs_nationalavg = gdp,
+                           college_vs_nationalavg = college_degree,
+                           nonwhite_vs_nationalavg = nonwhite_pop,
+                           rural_morethanfifth = rural_area,
+                           gdp_andprezresults = gdp_andprezresults,
+                           college_degree_andprezresults = college_degree_andprezresults,
+                           nonwhite_pop_andprezresults = nonwhite_pop_andprezresults,
+                           rural_area_andprezresults = rural_area_andprezresults
+                           )
+
+writexl::write_xlsx(list_of_breakdowns, "output/groupings_for_dems_hr1296.xlsx")
+
+
+
 
 
 
