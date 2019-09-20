@@ -160,6 +160,20 @@ house_dems_wspons <- house_dems_wspons %>%
 #join
 working_joined <- inner_join(house_dems_wspons, workingtable, by = "GEOID")
 
+#add flag columns for margin categorization
+working_joined <- working_joined %>% 
+  mutate(
+    margin_flag = case_when(
+      live_margin <= 5 ~ "5_points_or_less", 
+      live_margin > 5 ~ "more_than_5_points", 
+      TRUE ~ "other"
+    )
+  ) 
+
+working_joined %>% 
+  filter(margin_flag == "other") %>% 
+  View()
+
 #save results
 writexl::write_xlsx(working_joined, "output/working_joined_hr1296.xlsx")
 saveRDS(working_joined, "output/working_joined_hr1296.rds")
@@ -167,7 +181,7 @@ saveRDS(working_joined, "output/working_joined_hr1296.rds")
 
 
 
-## ANALYSIS ####
+### ANALYSIS ####
 
 #for crosstabs using summarytools
 # print(ctable(tobacco$smoker, tobacco$diseased, prop = "r"), method = "render")
@@ -208,6 +222,11 @@ nonwhite_pop <- working_joined %>%
 rural_area <- working_joined %>% 
   count(pct.rural.above20, stance)
 
+margin_5_or_less <- working_joined %>% 
+  count(margin_flag, stance)
+
+
+#the same with prezresults
 
 gdp_andprezresults <- working_joined %>% 
   count(p16winningparty, gdp_abovebelow_natlavg, stance)
@@ -221,6 +240,9 @@ nonwhite_pop_andprezresults <- working_joined %>%
 rural_area_andprezresults <- working_joined %>% 
   count(p16winningparty, pct.rural.above20, stance)
 
+margin_5_or_less_withprez <- working_joined %>% 
+  count(p16winningparty, margin_flag, stance)
+
 
 
 #now make a list to feed to writexl
@@ -229,10 +251,12 @@ list_of_breakdowns <- list(prezresults2016 = prezresults2016,
                            college_vs_nationalavg = college_degree,
                            nonwhite_vs_nationalavg = nonwhite_pop,
                            rural_morethanfifth = rural_area,
+                           margin_5_or_less = margin_5_or_less,
                            gdp_andprezresults = gdp_andprezresults,
                            college_degree_andprezresults = college_degree_andprezresults,
                            nonwhite_pop_andprezresults = nonwhite_pop_andprezresults,
-                           rural_area_andprezresults = rural_area_andprezresults
+                           rural_area_andprezresults = rural_area_andprezresults,
+                           margin_5_or_less_withprez = margin_5_or_less_withprez
                            )
 
 writexl::write_xlsx(list_of_breakdowns, "output/groupings_for_dems_hr1296.xlsx")
