@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
 library(summarytools)
+library(gt)
 options(scipen = 999)
 
 working_joined <- readRDS("output/working_joined_hr1296.rds")
@@ -21,15 +22,61 @@ working_joined <- readRDS("output/working_joined_hr1296.rds")
 Analysis of bill sponsorship vs. not
 
 
+Trump- or Hillary-won districts in 2016 (R or D)
 
 ```{r, echo=FALSE}
 
 print(ctable(working_joined$p16winningparty,
              working_joined$stance, 
-             prop = "r", headings = FALSE), method = "render")
+             prop = "n", headings = FALSE), method = "render")
 
 
 
 ```
 
-N
+
+GDP in district vs. national average
+
+```{r, echo=FALSE}
+
+print(ctable(working_joined$gdp_abovebelow_natlavg,
+             working_joined$stance, 
+             prop = "n", headings = FALSE), method = "render")
+
+
+```
+
+
+Percentage with bachelor's degree or higher vs. national average
+
+```{r, echo=FALSE}
+
+print(ctable(working_joined$pct.ed.college.all.abovebelow.natl,
+             working_joined$stance, 
+             prop = "n", headings = FALSE), method = "render")
+
+
+```
+
+
+Percentage of non-white population vs. national average
+
+```{r, echo=FALSE}
+
+print(ctable(working_joined$pct.race.nonwhite.abovebelow.natl,
+             working_joined$stance, 
+             prop = "n", headings = FALSE), method = "render")
+
+
+```
+
+
+Is more than 20% of the district's area considered rural 
+
+```{r, echo=FALSE}
+
+print(ctable(working_joined$pct.rural.above20,
+             working_joined$stance, 
+             prop = "n", headings = FALSE), method = "render")
+
+```
