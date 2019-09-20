@@ -173,7 +173,7 @@ saveRDS(working_joined, "output/working_joined_hr1296.rds")
 # print(ctable(tobacco$smoker, tobacco$diseased, prop = "r"), method = "render")
 
 # trump districts vs hillary
-ctable(working_joined$p16winningparty, working_joined$stance, prop = "r")
+summarytools::ctable(working_joined$p16winningparty, working_joined$stance, prop = "r")
 
 #education
 ctable(working_joined$pct.ed.college.all.abovebelow.natl, working_joined$stance, prop = "r")
@@ -186,12 +186,32 @@ ctable(working_joined$gdp_abovebelow_natlavg, working_joined$stance, prop = "n")
 
 
 
-
-ctable(working_joined$position, working_joined$pct.ed.college.all.abovebelow.natl, prop = "n")
-
-summarytools::tb()
+# summarytools::tb()
 
 glimpse(working_joined)
+
+
+# groupings for export to spreadsheet for gfx ####
+
+trump_hillary <- working_joined %>% 
+  count(p16winningparty, stance)
+
+gdp <- working_joined %>% 
+  count(gdp_abovebelow_natlavg, stance)
+
+college_degree <- working_joined %>% 
+  count(pct.ed.college.all.abovebelow.natl, stance)
+
+nonwhite_pop <- working_joined %>% 
+  count(pct.race.nonwhite.abovebelow.natl, stance)
+
+rural_area <- working_joined %>% 
+  count(pct.rural.above20, stance)
+
+
+
+
+###
 
 working_joined %>% 
   count(position)
@@ -217,19 +237,5 @@ working_joined %>%
 
 working_joined %>% 
   count(p16winningparty, pct.ed.college.all.abovebelow.natl)
-
-
-
-# how close were the 18 results?
-working_joined %>% 
-  select(
-    live_D_pct,
-    live_R_pct,
-    live_winning,
-    live_margin
-  ) %>% 
-  arrange(live_margin)
-
-
 
 
