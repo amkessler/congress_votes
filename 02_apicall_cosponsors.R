@@ -264,7 +264,8 @@ writexl::write_xlsx(list_of_breakdowns, "output/groupings_for_dems_hr1296.xlsx")
 
 
 
-
+working_joined %>% 
+  filter(margin_flag == "5_points_or_less") 
 
 
 ###
