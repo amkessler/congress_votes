@@ -1,7 +1,7 @@
 ---
 title: "bill analysis"
 author: "AK"
-date: "9/19/2019"
+date: ""
 output: html_document
 ---
 
@@ -78,5 +78,72 @@ Is more than 20% of the district's area considered rural
 print(ctable(working_joined$pct.rural.above20,
              working_joined$stance, 
              prop = "n", headings = FALSE), method = "render")
+
+```
+
+
+
+## Dems from Trump Districts only
+
+```{r}
+trump_dists_only <- working_joined %>% 
+  filter(p16winningparty == "R")
+
+```
+
+```{r}
+
+print(ctable(trump_dists_only$medincome.abovebelow.natl,
+             trump_dists_only$stance, 
+             prop = "r", headings = FALSE), method = "render")
+
+
+```
+
+
+```{r}
+
+print(ctable(trump_dists_only$pct.ed.college.all.abovebelow.natl,
+             trump_dists_only$stance, 
+             prop = "r", headings = FALSE), method = "render")
+
+
+```
+
+```{r}
+
+print(ctable(trump_dists_only$margin_flag,
+             trump_dists_only$stance, 
+             prop = "r", headings = FALSE), method = "render")
+
+
+```
+
+
+#### Dems on the bill from trump districts
+
+```{r}
+
+trump_dists_onbill <- working_joined %>% 
+  filter(p16winningparty == "R",
+         stance == "sponsoring")
+
+view(dfSummary(trump_dists_onbill))
+
+
+```
+
+
+
+#### Dems OFF the bill from trump districts
+
+```{r}
+
+trump_dists_offbill <- working_joined %>% 
+  filter(p16winningparty == "R",
+         stance == "not_sponsoring")
+
+view(dfSummary(trump_dists_offbill))
+
 
 ```
