@@ -82,6 +82,21 @@ print(ctable(working_joined$pct.rural.above20,
 ```
 
 
+Margins
+
+```{r}
+
+print(ctable(working_joined$margin_flag,
+             working_joined$stance, 
+             prop = "r", headings = FALSE), method = "render")
+
+
+```
+
+
+
+
+
 
 ## Dems from Trump Districts only
 
@@ -128,7 +143,7 @@ trump_dists_onbill <- working_joined %>%
   filter(p16winningparty == "R",
          stance == "sponsoring")
 
-view(dfSummary(trump_dists_onbill))
+# view(dfSummary(trump_dists_onbill))
 
 
 ```
@@ -143,7 +158,7 @@ trump_dists_offbill <- working_joined %>%
   filter(p16winningparty == "R",
          stance == "not_sponsoring")
 
-view(dfSummary(trump_dists_offbill))
+# view(dfSummary(trump_dists_offbill))
 
 
 ```

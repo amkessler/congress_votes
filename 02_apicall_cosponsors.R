@@ -136,7 +136,7 @@ house_dems_wspons <- house_dems_wspons %>%
       position == "sponsor" ~ "sponsoring", 
       position == "cosponsor" ~ "sponsoring", 
       position == "not sponsor" ~ "not_sponsoring", 
-      TRUE ~ "other"
+      TRUE ~ "not_sponsoring"
     )
   ) %>% 
   select(stance, everything()) %>% 
@@ -166,7 +166,7 @@ working_joined <- working_joined %>%
     margin_flag = case_when(
       live_margin <= 5 ~ "5_points_or_less", 
       live_margin > 5 ~ "more_than_5_points", 
-      TRUE ~ "other"
+      TRUE ~ "more_than_5_points"
     )
   ) 
 
