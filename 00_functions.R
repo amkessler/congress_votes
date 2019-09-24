@@ -6,7 +6,7 @@ library(curl)
 options(scipen = 999)
 options(stringsAsFactors = FALSE)
 
-
+#To obtain your own API key and for other documentation: https://projects.propublica.org/api-docs/congress-api/
 
 #### GET MEMBER INFORMATION ####
 
@@ -55,6 +55,10 @@ ppapi_download_cosponsors <- function(congress_session, billnum) {
 
 
 #### VOTEs ON A BILL #### 
+
+# ENDPOINT STRUCTURE
+# GET https://api.propublica.org/congress/v1/{congress}/{chamber}/sessions/{session-number}/votes/{roll-call-number}.json
+# "https://api.propublica.org/congress/v1/115/senate/sessions/1/votes/17.json"
 
 ppapi_download_rollcallvote <- function(congress_session, chamber, session, voteid) {
   
