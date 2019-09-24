@@ -59,6 +59,8 @@ house_dems <- result_memberlist %>%
   filter(party == "D",
          !state %in% c("VI", "GU", "MP", "DC", "PR", "AS")) 
 
+writexl::write_xlsx(house_dems, "processed_data/house_dems_all.xlsx")
+
 #see if any repeated IDs
 house_dems %>% 
   count(id) %>% 
