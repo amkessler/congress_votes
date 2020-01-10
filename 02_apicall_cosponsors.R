@@ -11,46 +11,73 @@ options(stringsAsFactors = FALSE)
 source("00_functions.R")
 
 
-### to avoid making new api calls, we can used the previous saved versions here ####
-### and then skip to the non-sponsor analysis section
+####################################################################################
+
+### to avoid making new api calls after running code for first time ----
+### we can used previously saved versions here 
+### and then skip to the sponsor analysis section
 
 # result_memberlist <- readRDS("processed_data/result_memberlist_116th.rds")
+
+# result_cosponsors <- readRDS("processed_data/result_cosponsors_<bill_num>.rds")
+# e.g.
 # result_cosponsors <- readRDS("processed_data/result_cosponsors_hr1296.rds")
 
 ####################################################################################
 
 
-### otherwise, we'll pull down info from the API here:
+### otherwise, we'll pull down info from the API here: ----
 
 # (the functions below found in file 00)
 
 #### GET MEMBER INFORMATION ####
 result_memberlist <- ppapi_download_memberinfo("116", "house")
 
-#see if any ids repeated
+# any ids repeated?
 result_memberlist %>% 
   count(id) %>% 
   filter(n > 1)
 
-#save result
+# see who repeats are, if any
+dups <- result_memberlist %>% 
+  count(id) %>% 
+  filter(n > 1) %>% 
+  pull(id)
+
+result_memberlist %>% 
+  filter(id %in% dups) 
+
+#save member list results
 saveRDS(result_memberlist, "processed_data/result_memberlist.rds")
 
 
-
 #### SPECIFIC BILL - LIST OF COSPONSORS #### 
-result_cosponsors <- ppapi_download_cosponsors("116", "hr1296")
+
+# set bill choice to pull
+bill_num <- "hr1296"
+
+# run function from step 00 to make API call, pull down the data
+result_cosponsors <- ppapi_download_cosponsors("116", bill_num)
 
 #see if any ids repeated
 result_cosponsors %>% 
   count(cosponsor_id) %>% 
   filter(n > 1)
 
-#save results
-saveRDS(result_cosponsors, "processed_data/result_cosponsors_hr1296.rds")
+
+#save the result...
+
+#generate file name to reflect vote details
+filename2 <- str_c("processed_data/result_cosponsors_", bill_num, ".rds")
+#write to rds
+saveRDS(result_cosponsors, filename2)
 
 
 
-#### LOOK FOR MEMBERS WHO ARE *NOT* COSPONSORS ##### 
+#### DETERMINING THE NON-SPONSORS (DEMS ONLY) #### --------------------------
+
+
+#### Look for members who are not sponsors ####
 glimpse(result_memberlist)
 
 #pull just house democrats (omit no-voting members)
@@ -59,7 +86,9 @@ house_dems <- result_memberlist %>%
   filter(party == "D",
          !state %in% c("VI", "GU", "MP", "DC", "PR", "AS")) 
 
+#save copies of the results
 writexl::write_xlsx(house_dems, "processed_data/house_dems_all.xlsx")
+saveRDS(house_dems, "processed_data/house_dems_all.rds")
 
 #see if any repeated IDs
 house_dems %>% 
@@ -146,7 +175,7 @@ house_dems_wspons <- house_dems_wspons %>%
     stance = str_squish(stance)
   )
   
-#finally, we'll remove Pelosi since the speaker doesn't really cosponsor bills
+#finally, we'll REMOVE PELOSI since the speaker doesn't really cosponsor bills
 #that will give us 234 total dems
 house_dems_wspons <- house_dems_wspons %>% 
   filter(id != "P000197")
