@@ -15,9 +15,24 @@ source("00_functions.R")
 # "https://api.propublica.org/congress/v1/115/senate/sessions/1/votes/17.json"
 
 
-result_rollcall <- ppapi_download_rollcallvote("116", "house", "1", "98")
+#set choices for the desired vote
+congress <- "116"
+chamber <- "house"
+session_number <- "1"
+roll_call_number <- "98"
+
+#use stored function from step 00 to pull the results from PP's API
+result_rollcall <- ppapi_download_rollcallvote(congress, 
+                                               chamber, 
+                                               session_number, 
+                                               roll_call_number)
 
 
-write_csv(result_rollcall, "output/rollcallvote_98.csv")
+#save the result...
+
+#generate file name to reflect vote details
+filename <- str_c("output/rollcallvote_", chamber, "_", session_number, "_", roll_call_number, ".csv")
+#write to csv
+write_csv(result_rollcall, filename)
 
 
