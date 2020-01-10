@@ -59,11 +59,11 @@ bill_num <- "hr1296"
 # run function from step 00 to make API call, pull down the data
 result_cosponsors <- ppapi_download_cosponsors("116", bill_num)
 
+
 #see if any ids repeated
 result_cosponsors %>% 
   count(cosponsor_id) %>% 
   filter(n > 1)
-
 
 #save the result...
 
@@ -129,7 +129,7 @@ result_cosponsors %>%
   select(bill_slug, cosponsor_id, name, cosponsor_state, cosponsor_party) 
 
 
-## Now let's build a single table that includes cosponsors, sponsor and nonsponsors ####
+## BUILD SINGLE COMBINED TABLE ####
 
 #start with data of voting democratic caucus
 house_dems
@@ -182,7 +182,8 @@ house_dems_wspons <- house_dems_wspons %>%
 
 
 
-#### BRING IN THE CONGRESSIONAL DISTRICT PROFILE DATA (FROM RB PROJECT) #### -----------
+#### BRING IN THE CONGRESSIONAL DISTRICT PROFILE DATA #### -----------
+
 workingtable <- readRDS("processed_data/workingtable.rds")
 
 house_dems_wspons <- house_dems_wspons %>% 
@@ -202,15 +203,15 @@ working_joined <- working_joined %>%
   ) 
 
 working_joined %>% 
-  filter(margin_flag == "other") %>% 
-  View()
+  filter(margin_flag == "other") 
 
-#save results
+#save results as output for collaborating with colleagues
 writexl::write_xlsx(working_joined, "output/working_joined_hr1296.xlsx")
 saveRDS(working_joined, "output/working_joined_hr1296.rds")
 
 
 
+# --------------------------------------------------------------------------------------
 
 ### ANALYSIS ####
 
@@ -230,11 +231,9 @@ ctable(working_joined$gdp_abovebelow_natlavg, working_joined$stance, prop = "c")
 ctable(working_joined$gdp_abovebelow_natlavg, working_joined$stance, prop = "n")
 
 
-
 # summarytools::tb()
 
 glimpse(working_joined)
-
 
 # groupings for export to spreadsheet for gfx ####
 
@@ -256,7 +255,6 @@ rural_area <- working_joined %>%
 margin_5_or_less <- working_joined %>% 
   count(margin_flag, stance)
 
-
 #the same with prezresults
 
 gdp_andprezresults <- working_joined %>% 
@@ -274,8 +272,6 @@ rural_area_andprezresults <- working_joined %>%
 margin_5_or_less_withprez <- working_joined %>% 
   count(p16winningparty, margin_flag, stance)
 
-
-
 #now make a list to feed to writexl
 list_of_breakdowns <- list(prezresults2016 = prezresults2016,
                            gdp_vs_nationalavg = gdp,
@@ -290,17 +286,13 @@ list_of_breakdowns <- list(prezresults2016 = prezresults2016,
                            margin_5_or_less_withprez = margin_5_or_less_withprez
                            )
 
-writexl::write_xlsx(list_of_breakdowns, "output/groupings_for_dems_hr1296.xlsx")
+#write it all to an excel file
+filename3 <- str_c("output/groupings_for_dems_", bill_num, ".xlsx")
+writexl::write_xlsx(list_of_breakdowns, filename3)
 
 
 
-
-working_joined %>% 
-  filter(margin_flag == "5_points_or_less") 
-
-
-###
-
+# quick counts to view in console
 working_joined %>% 
   count(position)
 
@@ -321,7 +313,6 @@ working_joined %>%
 
 working_joined %>% 
   count(pct.race.nonwhite.abovebelow.natl)
-
 
 working_joined %>% 
   count(p16winningparty, pct.ed.college.all.abovebelow.natl)
