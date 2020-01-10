@@ -75,9 +75,9 @@ class(this.content)
 #how long is the list
 length(this.content)
 this.content[[1]] #the first element - should be states if working
-this.content[[3]] #the data itself, or so it appears to be
+this.content[[5]] #the data itself, or so it appears to be
 
-content3_df <- as_tibble(this.content[[3]])
+content3_df <- as_tibble(this.content[[5]])
 #inspect the list column nested several levels down
 #in votes$vote$positions - where the full vote list located - for one record
 str(content3_df$cosponsors[[1]], max.level = 1) 
