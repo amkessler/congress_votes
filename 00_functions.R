@@ -42,7 +42,7 @@ ppapi_download_cosponsors <- function(congress_session, billnum) {
   this.raw.content <- rawToChar(get_cosponsors$content)
   #parse this json
   this.content <- fromJSON(this.raw.content)
-  content3_df <- as_tibble(this.content[[3]])
+  content3_df <- as_tibble(this.content[[5]])
   #unnest
   result_cosponsors <- content3_df %>%
     unnest(cosponsors)
